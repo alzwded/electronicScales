@@ -26,43 +26,43 @@ void print##WHICH(unsigned int x) \
 { \
 	switch(x) { \
 	case 0: \
-		PORT = (PORT & 0x80) | ~0xBF; \
+		PORT = (PORT & 0x80) | (0x7F & ~0xBF); \
 		break; \
 	case 1: \
-		PORT = (PORT & 0x80) | ~0x86; \
+		PORT = (PORT & 0x80) | (0x7F & ~0x86); \
 		break; \
 	case 2: \
-		PORT = (PORT & 0x80) | ~0xDB; \
+		PORT = (PORT & 0x80) | (0x7F & ~0xDB); \
 		break; \
 	case 3: \
-		PORT = (PORT & 0x80) | ~0xCF; \
+		PORT = (PORT & 0x80) | (0x7F & ~0xCF); \
 		break; \
 	case 4: \
-		PORT = (PORT & 0x80) | ~0xE6; \
+		PORT = (PORT & 0x80) | (0x7F & ~0xE6); \
 		break; \
 	case 5: \
-		PORT = (PORT & 0x80) | ~0xED; \
+		PORT = (PORT & 0x80) | (0x7F & ~0xED); \
 		break; \
 	case 6: \
-		PORT = (PORT & 0x80) | ~0xFC; \
+		PORT = (PORT & 0x80) | (0x7F & ~0xFC); \
 		break; \
 	case 7: \
-		PORT = (PORT & 0x80) | ~0x87; \
+		PORT = (PORT & 0x80) | (0x7F & ~0x87); \
 		break; \
 	case 8: \
-		PORT = (PORT & 0x80) | 0x0; \
+		PORT = (PORT & 0x80) | (0x7F & 0x0); \
 		break; \
 	case 9: \
-		PORT = (PORT & 0x80) | 0x10; \
+		PORT = (PORT & 0x80) | (0x7F & 0x10); \
 		break; \
 	case 'E': \
-		PORT = (PORT & 0x80) | 0x6; \
+		PORT = (PORT & 0x80) | (0x7F & 0x6); \
 		break; \
 	case 'r': \
-		PORT = (PORT & 0x80) | ~0x50; \
+		PORT = (PORT & 0x80) | (0x7F & ~0x50); \
 		break; \
 	default: \
-		PORT = (PORT & 0x80) | 0x6; \
+		PORT = (PORT & 0x80) | (0x7F & 0x6); \
 	} \
 }
 
@@ -158,13 +158,13 @@ reset:
 	state = ST_INPUT;
 	number = 23 - NUMBER_MIN;
 	
-    while(1)
-    {
-	    buttons();
+	while(1)
+	{
+		buttons();
 		switch(state) {
 		case ST_INPUT:
-		    PORTC &= 0x7F;
-		    PORTD &= 0x7F;
+			PORTC &= 0x7F;
+			PORTD &= 0x7F;
 			output(number + NUMBER_MIN);
 			break;
 		case ST_WEIGHING: {
@@ -180,12 +180,12 @@ reset:
 			PORTC |= 0x80;
 			break; }
 		case ST_SLEEP:
-		    set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+			set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 			sleep_mode();
 			break;
 		default:
 			goto reset;
 		}		
 		_delay_ms(200);
-    }
+	}
 }
