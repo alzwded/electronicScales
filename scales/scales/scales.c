@@ -71,9 +71,6 @@ ISR(INT2_vect, ISR_BLOCK)
 	cli();
 	if(GIFR & (1 << INTF2)) {
 		state = ST_SLEEP;
-		PORTC = 0x7F;
-		PORTD = 0x7F;
-		ADCSRA = 0x0; // turn off ADC
 		GIFR &= ~(1 << INTF2);
 	}
 	sei();
@@ -180,6 +177,9 @@ reset:
 			PORTC |= 0x80;
 			break; }
 		case ST_SLEEP:
+			PORTC = 0x7F;
+			PORTD = 0x7F;
+			ADCSRA = 0x0; // turn off ADC
 			set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 			sleep_mode();
 			break;
