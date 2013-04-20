@@ -19,3 +19,6 @@
 *.sw*
 **/*.sw*
 **/Debug
+*.DBK
+
+Debug
