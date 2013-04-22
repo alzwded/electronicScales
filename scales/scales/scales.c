@@ -5,7 +5,6 @@
  *  Author: Vlad Mesco
  */ 
 
-
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
@@ -99,25 +98,25 @@ void output(unsigned int x)
 {
 #ifdef DEBUG_PRINT_STATE
 	switch(state) {
-		case ST_INPUT:
-			printHi(0);
-			printLo(0);
-			break;
-		case ST_WEIGHING:
-			printHi(0);
-			printLo(1);
-			break;
-		case ST_SLEEP:
-			printHi(9);
-			printLo(9);
-			break;
-		case ST_RESET:
-			printHi(1);
-			printLo(0);
-			break;
-		default:
-			printHi('E');
-			printLo('r');
+	case ST_INPUT:
+		printHi(0);
+		printLo(0);
+		break;
+	case ST_WEIGHING:
+		printHi(0);
+		printLo(1);
+		break;
+	case ST_SLEEP:
+		printHi(9);
+		printLo(9);
+		break;
+	case ST_RESET:
+		printHi(1);
+		printLo(0);
+		break;
+	default:
+		printHi('E');
+		printLo('r');
 	}
 	return;
 #else
@@ -130,7 +129,7 @@ void output(unsigned int x)
 	} else {
 		printHi('E');
 		printLo('r');
-}
+	}
 #endif
 }
 
