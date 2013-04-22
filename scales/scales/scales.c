@@ -154,8 +154,8 @@ void reset()
 {
 	sei(); // set global interrupt enable
 	
-	DDRB = 0x00; // inputs
-	PORTB = 0xFF; // activate pull-up
+	DDRB = 0x0B; // inputs
+	PORTB = 0xF4; // activate pull-up
 	
 	// port c & d are output
 	DDRC = 0xFF; // most significant bit is weighing mode
