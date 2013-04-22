@@ -154,6 +154,9 @@ void reset()
 {
 	sei(); // set global interrupt enable
 	
+	DDRA = 0xFE;
+	PORTA = 0x0;
+	
 	DDRB = 0x0B; // inputs
 	PORTB = 0xF4; // activate pull-up
 	
