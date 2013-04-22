@@ -13,7 +13,9 @@
 
 #define ST_INPUT 0
 #define ST_WEIGHING 1
-#define ST_SLEEP 0xFF
+#define ST_RESET 0x80
+#define ST_SLEEP 0xFE // ends in 0 in order to toggle to WEIGHING
+                      //   if this button is pressed while sleeping
 
 #define NUMBER_MAX 30
 #define NUMBER_MIN 5
@@ -70,7 +72,10 @@ ISR(INT2_vect, ISR_BLOCK)
 {
 	cli();
 	if(GIFR & (1 << INTF2)) {
-		state = ST_SLEEP;
+		if(state == ST_SLEEP) {
+			reset();
+		}			
+		buttons();
 		GIFR &= ~(1 << INTF2);
 	}
 	sei();
@@ -92,6 +97,30 @@ DEFINE_PRINT_FUNC(Hi, PORTC)
 // print a double-digit number
 void output(unsigned int x)
 {
+#ifdef DEBUG_PRINT_STATE
+	switch(state) {
+		case ST_INPUT:
+			printHi(0);
+			printLo(0);
+			break;
+		case ST_WEIGHING:
+			printHi(0);
+			printLo(1);
+			break;
+		case ST_SLEEP:
+			printHi(9);
+			printLo(9);
+			break;
+		case ST_RESET:
+			printHi(1);
+			printLo(0);
+			break;
+		default:
+			printHi('E');
+			printLo('r');
+	}
+	return;
+#else
 	if(x < 100) {
 		unsigned int hi = x / 10;
 		unsigned int lo = x % 10;
@@ -101,33 +130,32 @@ void output(unsigned int x)
 	} else {
 		printHi('E');
 		printLo('r');
-	}
+}
+#endif
 }
 
 // handle buttons
 void buttons() 
 {
-	if(PINB & (1 << PINB0)) {
+	if(PINB & (1 << PINB4)) {
 		state = ST_INPUT;
 		number = (number + 1) % (NUMBER_MAX - NUMBER_MIN + 1);
-	} else if(PINB & (1 << PINB1)) {
+	} else if(PINB & (1 << PINB5)) {
 		state = ST_INPUT;
 		number = (NUMBER_MAX - NUMBER_MIN + 1 + number - 1) % (NUMBER_MAX - NUMBER_MIN + 1);
-	} else if(PINB & (1 << PINB3)) {
-		state = !state;
+	} else if(PINB & (1 << PINB7)) {
+		state = (state & 0x1) ^ 0x1;
+	} else if(PINB & (1 << PINB6)) {
+		state = ST_SLEEP;
 	}
 }
 
-// PORTA is analog input
-// PORTB is button inputs
-// PORTC, PORTD for LCDs
-int main(void)
+void reset()
 {
-reset:
 	sei(); // set global interrupt enable
 	
-	DDRB = 0xF0; // lower 4 pins are inputs
-	PORTB = 0x04; // activate pull-up
+	DDRB = 0x00; // inputs
+	PORTB = 0xFF; // activate pull-up
 	
 	// port c & d are output
 	DDRC = 0xFF; // most significant bit is weighing mode
@@ -151,18 +179,29 @@ reset:
 	
 	MCUCSR = (0 << ISC2); // falling edge on INT2
 	GICR = (1 << INT2); // activate interrupt on INT2
-	
+}
+
+// PORTA is analog input
+// PORTB is button inputs
+// PORTC, PORTD for LCDs
+int main(void)
+{
+reset:
+	reset();
+
 	state = ST_INPUT;
 	number = 23 - NUMBER_MIN;
 	
 	while(1)
 	{
-		buttons();
 		switch(state) {
 		case ST_INPUT:
 			PORTC &= 0x7F;
 			PORTD &= 0x7F;
 			output(number + NUMBER_MIN);
+			// sleep and wait for interrupt again
+			set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+			sleep_mode();
 			break;
 		case ST_WEIGHING: {
 			// (r + 5) / 10 <- rounding, gain was x10 so remove that
@@ -183,9 +222,9 @@ reset:
 			set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 			sleep_mode();
 			break;
+		case ST_RESET:
 		default:
 			goto reset;
-		}		
-		_delay_ms(200);
+		}
 	}
 }
