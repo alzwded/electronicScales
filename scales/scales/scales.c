@@ -10,6 +10,8 @@
 #include <avr/sleep.h>
 #include <util/delay.h>
 
+#define PULLUP_PORTB
+
 #define ST_INPUT 0
 #define ST_WEIGHING 1
 #define ST_RESET 0x80
@@ -157,7 +159,11 @@ void reset()
 	PORTA = 0x0;
 	
 	DDRB = 0x0B; // inputs
+#ifdef PULLUP_PORTB
 	PORTB = 0xF4; // activate pull-up
+#else
+	PORTB = 0x0;
+#endif
 	
 	// port c & d are output
 	DDRC = 0xFF; // most significant bit is weighing mode
