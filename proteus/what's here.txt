@@ -1,0 +1,3 @@
+scales.DSN - schematic for PORTB configured as pull-up
+scales-negativeLogic.DSN - schematic for PORTB configured without pull-up, INT2 is active in LO, buttons active in HI
+scales-positiveLogic.DSN - idem, but INT2 is active in HI
